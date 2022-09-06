@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">service</a> &gt; <span class="el_source">GameService.kt</span></div><h1>GameService.kt</h1><pre class="source lang-java linenums">package service
+
+import entity.*
+
+/**
+ * This class manages the start of a new game and the turn.
+ *
+ * @param rootService current rootserives
+ */
+<span class="nc" id="L10">class GameService(var rootService: RootService) : AbstractRefreshingService() {</span>
+
+    /**
+     * Starts a new Game of Zooloretto.
+     *
+     * @param players List of players for the nw game
+     */
+    fun startNewGame(players: List&lt;Player&gt;) {
+<span class="nc" id="L18">        rootService.gameMaster = GameMaster(ZoolorettoGame(players))</span>
+<span class="nc" id="L19">        rootService.gameMaster.currentGame.players.forEach {</span>
+<span class="nc" id="L20">            it.zoo = Zoo(rootService.gameMaster.currentGame.players.size)</span>
+<span class="nc" id="L21">        }</span>
+<span class="nc" id="L22">    }</span>
+
+    /**
+     * Validates a spcific turn
+     *
+     * @param t turn to validate
+     * @param state on which the turn should be executed
+     */
+<span class="nc" id="L30">    fun validateTurn(t: Turn, state: ZoolorettoGame? = null) {</span>
+<span class="nc bnc" id="L31" title="All 4 branches missed.">        val game = state ?: requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc" id="L32">        when (t) {</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">            is Turn.Draw -&gt; validatedraw(t, game)</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            is Turn.MoneyAction -&gt; validateMoneyAction(t, game)</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">            is Turn.TakeTruck -&gt; validateTaketruck(t, game)</span>
+        }
+<span class="nc" id="L37">    }</span>
+
+    /**
+     * Validates Turn.draw
+     */
+<span class="nc" id="L42">    fun validatedraw(t: Turn.Draw, state: ZoolorettoGame? = null) {</span>
+        //var game = state ?: requireNotNull(rootService.gameMaster.currentGame)
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (t.truck.cards.size == t.truck.capacity) throw UnsupportedOperationException(&quot;Truck is already full&quot;)</span>
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * Validates a Moneyaction
+     */
+<span class="nc" id="L50">    fun validateMoneyAction(t: Turn.MoneyAction, state: ZoolorettoGame? = null) {</span>
+<span class="nc bnc" id="L51" title="All 4 branches missed.">        val game = state ?: requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (game.currentPlayer.balance &gt;= rootService.playerActionService.moneyActionCost(t.m)) {</span>
+<span class="nc" id="L53">            throw UnsupportedOperationException(&quot;Player needs more Money for this MoneyAction&quot;)</span>
+        }
+<span class="nc" id="L55">        when (val m = t.m) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            is MoneyAction.Move1Token -&gt; validateMove1token(m, game)</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            is MoneyAction.Swap2Types -&gt; validateSwap2types(m, game)</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            is MoneyAction.Purchase1Token -&gt; validatePurchase1token(m, game)</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            is MoneyAction.Discard1Token -&gt; validateDiscard1token(m, game)</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            is MoneyAction.ExpandZoo -&gt; validateExpandzoo(game)</span>
+        }
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Validates Moneyaction.Move1token
+     */
+<span class="nc" id="L67">    fun validateMove1token(m: MoneyAction.Move1Token, state: ZoolorettoGame? = null) {</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        val game = state ?: requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (game.currentPlayer.zoo.enclosures.sumOf { it.animals.size } == 0) {</span>
+<span class="nc" id="L70">            throw UnsupportedOperationException(&quot;There are no animals to move&quot;)</span>
+        }
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (!m.moveLocation.isBarn) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (m.chosenCard is Card.Animal) {</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                if (m.moveLocation.animals.size &gt; 0 &amp;&amp; m.moveLocation.animals.filterNotNull()</span>
+<span class="nc bnc" id="L76" title="All 6 branches missed.">                        .any { it.animalType != m.chosenCard.animalType }</span>
+                ) {
+<span class="nc" id="L78">                    throw UnsupportedOperationException(&quot;An animals cannot be moved into en enclosure with a different AnimalType&quot;)</span>
+                }
+            }
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (m.chosenCard is Card.Shop) {</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                if (m.moveLocation.shops.size == m.moveLocation.shopCapacity) {</span>
+<span class="nc" id="L83">                    throw UnsupportedOperationException(&quot;Enclosure has max amount of shops already&quot;)</span>
+                }
+            }
+        }
+<span class="nc" id="L87">    }</span>
+
+    /**
+     * Validates Moneyaction.Swap2types
+     */
+<span class="nc" id="L92">    fun validateSwap2types(m: MoneyAction.Swap2Types, state: ZoolorettoGame? = null) {</span>
+        //var game = state ?: requireNotNull(rootService.gameMaster.currentGame)
+<span class="nc" id="L94">        val encs = listOf(m.enc2, m.enc2)</span>
+<span class="nc" id="L95">        if (encs.map { it.animals }.flatten().filterNotNull()</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                .groupBy { it.animalType }.size == 1</span>
+<span class="nc" id="L97">        ) throw UnsupportedOperationException(&quot;Cannot swap enclosures with the same animalTypes&quot;)</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">        if (encs.all { it.isBarn }) throw UnsupportedOperationException(&quot;Cannot swap from Barn to Barn&quot;)</span>
+<span class="nc bnc" id="L99" title="All 4 branches missed.">        if (encs.any { it.animals.isEmpty() }) {</span>
+<span class="nc" id="L100">            throw UnsupportedOperationException(&quot;Cannot swap from or to an empty enclosure&quot;)</span>
+        }
+<span class="nc" id="L102">    }</span>
+
+
+    /**
+     * Validates Moneyaction.Purchase1token
+     */
+<span class="nc" id="L108">    fun validatePurchase1token(m: MoneyAction.Purchase1Token, state: ZoolorettoGame? = null) {</span>
+        //var game = state ?: requireNotNull(rootService.gameMaster.currentGame)
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (!m.moveLocation.isBarn) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (m.moveLocation.animals.size &gt; 0 &amp;&amp; m.moveLocation.animals.filterNotNull()</span>
+<span class="nc bnc" id="L112" title="All 6 branches missed.">                    .any { it.animalType != m.chosenAnimal.animalType }</span>
+            ) {
+<span class="nc" id="L114">                throw UnsupportedOperationException(&quot;An animals cannot be moved into en enclosure with a different AnimalType&quot;)</span>
+            }
+        }
+<span class="nc" id="L117">        if (m.sPlayer.zoo.enclosures.map { it.animals }.flatten()</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">                .none { it == m.chosenAnimal }</span>
+<span class="nc" id="L119">        ) throw UnsupportedOperationException(&quot;The other player does not own this card&quot;)</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (m.index &gt;= m.moveLocation.animalCapacity) throw UnsupportedOperationException(&quot;The index is too big to fit into this enclosure&quot;)</span>
+<span class="nc" id="L121">    }</span>
+
+    /**
+     * Validates Moneyaction.Discard1token
+     */
+<span class="nc" id="L126">    fun validateDiscard1token(m: MoneyAction.Discard1Token, state: ZoolorettoGame? = null) {</span>
+<span class="nc bnc" id="L127" title="All 4 branches missed.">        val game = state ?: requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc bnc" id="L128" title="All 4 branches missed.">        if (game.currentPlayer.zoo.barn.animals.none { it == m.chosenAnimal }) {</span>
+<span class="nc" id="L129">            throw UnsupportedOperationException(&quot;This card is not in the players barn&quot;)</span>
+        }
+<span class="nc" id="L131">    }</span>
+
+    /**
+     * Validates Moneyaction.Expandzoo
+     */
+<span class="nc" id="L136">    fun validateExpandzoo(state: ZoolorettoGame? = null) {</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">        val game = state ?: requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (game.currentPlayer.zoo.expanded == 0) throw UnsupportedOperationException(&quot;Player has already expanded&quot;)</span>
+<span class="nc" id="L139">    }</span>
+
+    /**
+     * Validates Turn.Taketruck
+     */
+<span class="nc" id="L144">    fun validateTaketruck(t: Turn.TakeTruck, state: ZoolorettoGame? = null) {</span>
+<span class="nc bnc" id="L145" title="All 4 branches missed.">        val game = state ?: requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (t.truck.cards.isEmpty()) throw UnsupportedOperationException(&quot;The Truck is empty&quot;)</span>
+<span class="nc" id="L147">        if (game.players.map { it.selectedTruck }</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">                .contains(t.truck)) throw UnsupportedOperationException(&quot;This Truck is already selected by another player&quot;)</span>
+<span class="nc bnc" id="L149" title="All 4 branches missed.">        if (!(t.map.keys.containsAll(t.indexMap.keys) &amp;&amp; t.indexMap.keys.containsAll(t.map.keys))) {</span>
+<span class="nc" id="L150">            throw UnsupportedOperationException(&quot;Maps were not created correctly&quot;)</span>
+        }
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (!t.truck.cards.containsAll(t.map.keys)) {</span>
+<span class="nc" id="L153">            throw UnsupportedOperationException(&quot;Cards are in one of the maps, but were not on the truck&quot;)</span>
+        }
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (!t.map.keys.containsAll(t.truck.cards)) {</span>
+<span class="nc" id="L156">            throw UnsupportedOperationException(&quot;Cards are on the Truck, but were not in the maps&quot;)</span>
+        }
+<span class="nc bnc" id="L158" title="All 8 branches missed.">        if (t.map.any { it.key is Card.Animal &amp;&amp; it.value == null }) {</span>
+<span class="nc" id="L159">            throw UnsupportedOperationException(&quot;There was an AnimalCard for which no enclosure was selected&quot;)</span>
+        }
+<span class="nc bnc" id="L161" title="All 10 branches missed.">        if (t.map.filter { it.value != null }.any { it.value!!.animals[t.indexMap[it.key]!!] != null }) {</span>
+<span class="nc" id="L162">            throw UnsupportedOperationException(</span>
+<span class="nc" id="L163">                &quot;One Card in map wants to replace an already valid card in enclosure&quot;</span>
+            )
+        }
+<span class="nc" id="L166">    }</span>
+
+
+    /**
+     * Prepares the next turn and checks if player is human or AI
+     */
+    fun prepareNextTurn() {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        val game = requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc bnc" id="L174" title="All 4 branches missed.">        if(game.players.size == game.players.mapNotNull { it.selectedTruck }.size) game.players.forEach { it.selectedTruck = null }</span>
+<span class="nc" id="L175">        game.currentPlayer = game.players[(game.players.indexOf(game.currentPlayer) + 1) % game.players.size]</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        while(game.currentPlayer.selectedTruck != null) game.currentPlayer = game.players[(game.players.indexOf(game.currentPlayer) + 1) % game.players.size]</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if(game.currentPlayer is Player.AIPlayer) {</span>
+            //rootservice.KiService.makeTurn()      AI turn
+        }
+<span class="nc" id="L180">        onAllRefreshables { refreshAfterTurn() }</span>
+<span class="nc" id="L181">    }</span>
+
+    /**
+     * Makes a turn
+     *
+     * @param t the type of turn that should be executed
+     * @param state the state on which the turn will be executed
+     */
+<span class="nc" id="L189">    fun turn(t: Turn, state: ZoolorettoGame? = null) {</span>
+<span class="nc bnc" id="L190" title="All 4 branches missed.">        val game = state ?: requireNotNull(rootService.gameMaster.currentGame)</span>
+<span class="nc" id="L191">        validateTurn(t)</span>
+<span class="nc" id="L192">        rootService.playerActionService.turn(t, game)</span>
+<span class="nc" id="L193">        prepareNextTurn()</span>
+<span class="nc" id="L194">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

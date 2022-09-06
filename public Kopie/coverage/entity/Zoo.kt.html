@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Zoo.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">entity</a> &gt; <span class="el_source">Zoo.kt</span></div><h1>Zoo.kt</h1><pre class="source lang-java linenums">package entity
+
+/**
+ * The zoo resembles the entire board of a player's.
+ *
+ * @param playersCount is the number of players in the current game.
+ */
+<span class="nc" id="L8">class Zoo(playersCount: Int) {</span>
+    /**
+     * Initialize all 3 enclosures.
+     */
+<span class="nc" id="L12">    val enclosures = mutableListOf(</span>
+<span class="nc" id="L13">        Enclosure(</span>
+<span class="nc" id="L14">            animalCapacity = 999,</span>
+<span class="nc" id="L15">            shopCapacity = 0,</span>
+<span class="nc" id="L16">            coinsFull = 0,</span>
+<span class="nc" id="L17">            pointsFull = 0,</span>
+<span class="nc" id="L18">            pointsNearlyFull = 0,</span>
+<span class="nc" id="L19">            isBarn = true</span>
+        ),
+<span class="nc" id="L21">        Enclosure(animalCapacity = 6, shopCapacity = 1, coinsFull = 0, pointsFull = 10, pointsNearlyFull = 6),</span>
+<span class="nc" id="L22">        Enclosure(animalCapacity = 5, shopCapacity = 1, coinsFull = 2, pointsFull = 8, pointsNearlyFull = 5),</span>
+<span class="nc" id="L23">        Enclosure(animalCapacity = 4, shopCapacity = 2, coinsFull = 1, pointsFull = 5, pointsNearlyFull = 4)</span>
+    )
+
+    /**
+     * the Barn
+     */
+<span class="nc" id="L29">    val barn = enclosures[0]</span>
+
+    /**
+     * Refers the number of remaining possible expansions according to the game rules.
+     */
+<span class="nc" id="L34">    var expanded = when (playersCount) {</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        2 -&gt; 2</span>
+<span class="nc" id="L36">        else -&gt; 1</span>
+<span class="nc" id="L37">    }</span>
+
+    /**
+     * Performs expand action, if possible, by adding a new enclosure to the zoo.
+     */
+    fun expand() {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (expanded &gt; 0) {</span>
+<span class="nc" id="L44">            enclosures.add(</span>
+<span class="nc" id="L45">                Enclosure(</span>
+<span class="nc" id="L46">                    animalCapacity = 6,</span>
+<span class="nc" id="L47">                    shopCapacity = 1,</span>
+<span class="nc" id="L48">                    coinsFull = 1,</span>
+<span class="nc" id="L49">                    pointsFull = 9,</span>
+<span class="nc" id="L50">                    pointsNearlyFull = 5</span>
+                )
+            )
+<span class="nc" id="L53">            expanded--</span>
+        }
+<span class="nc" id="L55">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

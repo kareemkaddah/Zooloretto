@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameMaster.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">entity</a> &gt; <span class="el_source">GameMaster.kt</span></div><h1>GameMaster.kt</h1><pre class="source lang-java linenums">package entity
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.*
+
+/**
+ * Game-master.
+ *
+ * @param currentGame the currentGame
+ * @param turns the list of gameStates that are saved for undo and redo functionality
+ */
+<span class="nc" id="L12">class GameMaster(</span>
+<span class="nc" id="L13">    var currentGame: ZoolorettoGame,</span>
+<span class="nc" id="L14">    var turns: List&lt;ZoolorettoGame&gt; = listOf(currentGame)</span>
+) {
+    /**
+     * Appends a new game to the list of gameStates
+     */
+    fun appendGame() {
+<span class="nc" id="L20">         var copiedGame: ZoolorettoGame = GameMaster.deepCopy&lt;ZoolorettoGame&gt;(this.turns.last())!!</span>
+<span class="nc" id="L21">         this.turns = this.turns.plus(copiedGame)</span>
+<span class="nc" id="L22">         currentGame = this.turns.last()</span>
+<span class="nc" id="L23">      }</span>
+
+    /**
+     * Undo's a turn
+     */
+    fun undo() {
+<span class="nc" id="L29">        val currentIndex: Int = turns.indexOf(currentGame)-1</span>
+<span class="nc" id="L30">        currentGame =turns[kotlin.math.max(0, currentIndex)]</span>
+<span class="nc" id="L31">    }</span>
+
+    /**
+     * Redo's a turn
+     */
+    fun redo() {
+<span class="nc" id="L37">        val currentIndex: Int = turns.indexOf(currentGame)+1</span>
+<span class="nc" id="L38">        currentGame =turns[kotlin.math.max(0, currentIndex)]</span>
+<span class="nc" id="L39">    }</span>
+
+    /**
+     * Turns a gameState into a String
+     *
+     * @return String that represents a gameState
+     */
+    fun stateToString():String{
+<span class="nc" id="L47">        return Gson().toJson(turns)</span>
+    }
+    /**
+     * Turns a String into a gameState
+     *
+     * @param stateString the String that should be converted
+     */
+    fun stateFromString(stateString: String){
+<span class="nc" id="L55">        turns = Gson().fromJson(stateString, object : TypeToken&lt;List&lt;ZoolorettoGame&gt;&gt;() {}.getType())</span>
+<span class="nc" id="L56">    }</span>
+
+    /**
+     * Makes a gameState serializable
+     */
+    companion object {
+        /**
+         * Makes a deepcopy of the gamestate
+         *
+         * @param obj Game of which the deepcopy is made
+         * @return deepcopy of the game
+         */
+        fun &lt;T : Serializable&gt; deepCopy(obj: ZoolorettoGame): T? {
+            //if (obj == null) return null was always false
+<span class="nc" id="L70">            val baos = ByteArrayOutputStream()</span>
+<span class="nc" id="L71">            val oos  = ObjectOutputStream(baos)</span>
+<span class="nc" id="L72">            oos.writeObject(obj)</span>
+<span class="nc" id="L73">            oos.close()</span>
+<span class="nc" id="L74">            val bais = ByteArrayInputStream(baos.toByteArray())</span>
+<span class="nc" id="L75">            val ois  = ObjectInputStream(bais)</span>
+            @Suppress(&quot;unchecked_cast&quot;)
+<span class="nc" id="L77">            return ois.readObject() as T</span>
+        }
+    }
+
+<span class="nc" id="L81">}</span>
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

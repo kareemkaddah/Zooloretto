@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">entity</a> &gt; <span class="el_source">Player.kt</span></div><h1>Player.kt</h1><pre class="source lang-java linenums">package entity
+
+/**
+ * This class represents a human player for Zooloretto.
+ *
+ * @param playerName the name of the player
+ */
+<span class="nc" id="L8">sealed class Player (private val playerName: String) {</span>
+<span class="nc" id="L9">    var balance = 2</span>
+<span class="nc bnc" id="L10" title="All 2 branches missed.">    lateinit var zoo: Zoo</span>
+<span class="nc" id="L11">    var selectedTruck: Truck? = null</span>
+
+    /**
+     * AI player's class.
+     * @param name is the player's name. Default is &quot;Bot&quot;.
+     * @param difficulty is the AI's difficulty level. Default is [AIDifficulty.EASY].
+     * See also [AIDifficulty].
+     * @param speed is the simulation speed / the delay in milliseconds before AI makes a move.
+     * Default is 1000.
+     */
+<span class="nc" id="L21">    data class AIPlayer (</span>
+<span class="nc" id="L22">        val name: String = &quot;Bot&quot;,</span>
+<span class="nc" id="L23">        val difficulty: AIDifficulty = AIDifficulty.EASY,</span>
+<span class="nc" id="L24">        val speed: Number = 1000</span>
+<span class="nc" id="L25">    ): Player(name)</span>
+
+    /**
+     * Human player's class.
+     * @param name is the player's name. Default is &quot;Player&quot;.
+     */
+<span class="nc" id="L31">    data class HumanPlayer(val name: String = &quot;Player&quot;): Player(name)</span>
+
+    /**
+     * Reads the player's name.
+     */
+    override fun toString(): String {
+<span class="nc" id="L37">        return playerName</span>
+    }
+
+    /**
+     * Calculates the score based on the current state of the board.
+     * @return the score from each enclosure in addition to the number of the stalls.
+     */
+    fun score(): Int {
+<span class="nc" id="L45">        return (</span>
+<span class="nc bnc" id="L46" title="All 6 branches missed.">                zoo.enclosures.filter { !it.isBarn }.sumOf { it.computePoints() }</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">                        + (zoo.enclosures.filter { !it.isBarn }.map { it.shops }.flatten()</span>
+<span class="nc" id="L48">                            .filterNotNull().groupBy { it.shopType }.size * 2)</span>
+<span class="nc" id="L49">                        - (zoo.barn.shops.filterNotNull().size * 2)</span>
+<span class="nc" id="L50">                        - (zoo.barn.animals.filterNotNull().groupBy { it.animalType }.size * 2)</span>
+                )
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

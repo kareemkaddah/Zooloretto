@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KIServiceV2.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">service</a> &gt; <span class="el_source">KIServiceV2.kt</span></div><h1>KIServiceV2.kt</h1><pre class="source lang-java linenums">package service
+
+import entity.*
+import kotlin.math.max
+
+<span class="nc" id="L6">class KIServiceV2(private var rootService: RootService) : AbstractRefreshingService() {</span>
+    private var tileOnTruck : Truck? =null
+<span class="nc" id="L8">    private var swap2Types = Action.Swap2Types</span>
+<span class="nc" id="L9">    private var move1Token = Action.Move1Token</span>
+<span class="nc" id="L10">    private var purchase1Token = Action.Purchase1Token</span>
+<span class="nc" id="L11">    private var expandZoo = Action.ExpandZoo</span>
+<span class="nc" id="L12">    private var discard1Token = Action.Discard1Token</span>
+
+    //TODO : Testing  &amp; adjust scoring Variables &amp; implement difficulty &amp; Speed
+    fun makeTurn() {
+        //TODO
+<span class="nc" id="L17">    }</span>
+
+    enum class Action {
+
+<span class="nc" id="L21">        Swap2Types,</span>
+<span class="nc" id="L22">        Move1Token,</span>
+<span class="nc" id="L23">        Purchase1Token,</span>
+<span class="nc" id="L24">        Discard1Token,</span>
+<span class="nc" id="L25">        ExpandZoo;</span>
+
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        lateinit var map :Map&lt;Card,Enclosure?&gt;</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        lateinit var moveLocation : Enclosure</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        lateinit var choseCard : Card</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        lateinit var sPlayer: Player</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        lateinit var chosenAnimal: Card.Animal</span>
+
+    }
+    private fun phaseTwo(){
+<span class="nc" id="L35">       val actionMap : MutableMap&lt;Action,Int&gt; = mutableMapOf(</span>
+<span class="nc" id="L36">           move1Token to move1TokenScore() ,</span>
+<span class="nc" id="L37">           expandZoo to expandZooScore() ,</span>
+<span class="nc" id="L38">           discard1Token to discard1TokenScore(),</span>
+<span class="nc" id="L39">           purchase1Token to purchase1TokenScore(),</span>
+<span class="nc" id="L40">           swap2Types to swap2Types()</span>
+       )
+<span class="nc bnc" id="L42" title="All 8 branches missed.">        val bestAction =actionMap.maxByOrNull { it.value }</span>
+<span class="nc bnc" id="L43" title="All 4 branches missed.">        if(checkNotNull(bestAction).value !=0){</span>
+<span class="nc bnc" id="L44" title="All 6 branches missed.">            when(bestAction.key){</span>
+<span class="nc" id="L45">                Action.Discard1Token-&gt; MoneyAction.Discard1Token(discard1Token.chosenAnimal)</span>
+<span class="nc" id="L46">                Action.Purchase1Token-&gt;MoneyAction.Purchase1Token(purchase1Token.moveLocation</span>
+<span class="nc" id="L47">                                                    ,purchase1Token.sPlayer,purchase1Token.chosenAnimal)</span>
+<span class="nc" id="L48">                Action.ExpandZoo -&gt;MoneyAction.ExpandZoo</span>
+<span class="nc" id="L49">                Action.Swap2Types-&gt;MoneyAction.Swap2Types(swap2Types.map)</span>
+<span class="nc" id="L50">                Action.Move1Token -&gt; MoneyAction.Move1Token(move1Token.moveLocation,</span>
+<span class="nc" id="L51">                                                                     move1Token.choseCard)</span>
+            }
+        }
+
+<span class="nc" id="L55">    }</span>
+
+    private fun swap2Types(): Int {
+<span class="nc" id="L58">        val currentGame=rootService.gameMaster.currentGame</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if(currentGame.currentPlayer.balance&lt;1) return 0</span>
+<span class="nc" id="L60">        var score=0</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        for(animal in currentGame.currentPlayer.zoo.barn.animals){</span>
+<span class="nc" id="L62">            val animalType= mutableListOf&lt;Card.Animal&gt;()</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            for(tile in currentGame.currentPlayer.zoo.barn.animals){</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                if(tile.animalType==animal.animalType){</span>
+<span class="nc" id="L65">                    animalType.add(tile)</span>
+                }
+            }
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            for(enclosure in currentGame.currentPlayer.zoo.enclosures){</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                if(!enclosure.isBarn){</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">                    val enclosureType = if (enclosure.animals.isNotEmpty()) enclosure.animals.first().animalType</span>
+<span class="nc" id="L71">                                        else AnimalType.Panda</span>
+<span class="nc" id="L72">                    val enclosureSize=enclosure.animals.size</span>
+<span class="nc" id="L73">                    val animalNum=animalType.size</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">                    if(animalNum&gt;enclosureSize){</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                        if(animalNum&gt;enclosure.animalCapacity){</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                            if((enclosure.animalCapacity-enclosureSize)*2 &gt; score){</span>
+<span class="nc" id="L77">                                score=(enclosure.animalCapacity-enclosureSize)*2</span>
+<span class="nc" id="L78">                               swap2Types.map = assignMap(currentGame.currentPlayer.zoo.barn,animal.animalType,</span>
+<span class="nc" id="L79">                               enclosure,enclosureType)</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                            }else if(enclosureSize != enclosure.animalCapacity){</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                                if((animalNum-enclosureSize)*2 &gt; score){</span>
+<span class="nc" id="L82">                                    score=(animalNum-enclosureSize)*2</span>
+<span class="nc" id="L83">                                    swap2Types.map= assignMap(currentGame.currentPlayer.zoo.barn,animal.animalType,</span>
+<span class="nc" id="L84">                                        enclosure,enclosureType)</span>
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+<span class="nc bnc" id="L92" title="All 4 branches missed.">        val fullSpace = currentGame.currentPlayer.zoo.enclosures.filter { !it.isBarn &amp;&amp;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        it.animals.size==it.animalCapacity}</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">        val notEmptySpaces=currentGame.currentPlayer.zoo.enclosures.filter { !it.isBarn &amp;&amp;</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">        it.animals.isNotEmpty()}</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        for(full in fullSpace){</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            for(notFull in notEmptySpaces){</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">                if(full.animalCapacity &gt; notFull.animals.size &amp;&amp; full.animalCapacity &lt;= notFull.animalCapacity){</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                    if(notFull.animalCapacity % 2 &gt; score){</span>
+<span class="nc" id="L100">                        score = notFull.animalCapacity % 2</span>
+<span class="nc" id="L101">                        swap2Types.map= assignMap(notFull,notFull.animals.first().animalType,</span>
+<span class="nc" id="L102">                            full,full.animals.first().animalType)</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L107">        return score</span>
+    }
+
+    private fun assignMap(first: Enclosure, firstType: AnimalType,
+                          second: Enclosure, secondType: AnimalType): Map&lt;Card, Enclosure?&gt; {
+<span class="nc" id="L112">        val map : MutableMap&lt;Card,Enclosure&gt; = mutableMapOf()</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        for (animal in first.animals){</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if(animal.animalType==firstType){</span>
+<span class="nc" id="L115">                map[animal] = second</span>
+            }
+        }
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        for (animal in second.animals){</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            if(animal.animalType==secondType){</span>
+<span class="nc" id="L120">                map[animal] = first</span>
+            }
+        }
+<span class="nc" id="L123">        return map</span>
+    }
+
+    private fun purchase1TokenScore(): Int {
+<span class="nc" id="L127">        val currentGame =rootService.gameMaster.currentGame</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if(currentGame.currentPlayer.balance&lt;2) return 0</span>
+<span class="nc" id="L129">        var score =0</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (player in currentGame.players){</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            if(player!=currentGame.currentPlayer){</span>
+<span class="nc" id="L132">                var bonus=0</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                for(token in player.zoo.barn.animals){</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">                    val enclosuresHasAnimal = currentGame.currentPlayer.zoo.enclosures.filter { !it.isBarn &amp;&amp;</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">                            it.animals.first().animalType==token.animalType &amp;&amp;(it.animalCapacity&gt;it.animals.size) }</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                    for(e in enclosuresHasAnimal){</span>
+<span class="nc" id="L137">                        val size=e.animals.size</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                        if (size+1==e.animalCapacity){</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                            if(e.pointsFull&gt; bonus){</span>
+<span class="nc" id="L140">                                bonus=e.pointsFull</span>
+<span class="nc" id="L141">                                move1Token.moveLocation = e</span>
+<span class="nc" id="L142">                                move1Token.sPlayer = player</span>
+<span class="nc" id="L143">                                move1Token.chosenAnimal =token</span>
+                            }
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                        } else if (size+1&gt;=e.pointsNearlyFull) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                            if(e.pointsNearlyFull &gt; bonus){</span>
+<span class="nc" id="L147">                                bonus=e.pointsNearlyFull</span>
+<span class="nc" id="L148">                                move1Token.moveLocation = e</span>
+<span class="nc" id="L149">                                move1Token.sPlayer = player</span>
+<span class="nc" id="L150">                                move1Token.chosenAnimal =token</span>
+                            }
+                        } else {
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                            if(2 &gt; bonus){</span>
+<span class="nc" id="L154">                                bonus=2</span>
+<span class="nc" id="L155">                                move1Token.moveLocation = e</span>
+<span class="nc" id="L156">                                move1Token.sPlayer = player</span>
+<span class="nc" id="L157">                                move1Token.chosenAnimal =token</span>
+                            }
+                        }
+                    }
+                }
+<span class="nc" id="L162">                score =bonus</span>
+            }
+        }
+<span class="nc" id="L165">        return score</span>
+    }
+
+    private fun discard1TokenScore(): Int {
+<span class="nc" id="L169">        val currentGame=rootService.gameMaster.currentGame</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if(currentGame.currentPlayer.balance&lt;2) return 0</span>
+<span class="nc" id="L171">        var bonus=0</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if(!hasEmptySpace(currentGame.currentPlayer.zoo.enclosures)</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">            &amp;&amp; currentGame.currentPlayer.zoo.expandingValue()==0){</span>
+            var animalType : Card
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            for(animal in currentGame.currentPlayer.zoo.barn.animals){</span>
+<span class="nc" id="L176">                var count =0</span>
+<span class="nc" id="L177">                animalType = animal</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                for(tile in currentGame.currentPlayer.zoo.barn.animals) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                    if (animal.animalType==tile.animalType) count++</span>
+                }
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                if (count==1 ) {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                    if(!tradableAnimal(animal,currentGame)) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                        if(4 &gt; bonus ) {</span>
+<span class="nc" id="L184">                            bonus = 4</span>
+<span class="nc" id="L185">                            discard1Token.chosenAnimal= animalType</span>
+                        }
+                    }
+                }
+            }
+        }
+<span class="nc" id="L191">        return bonus</span>
+    }
+
+
+    private fun expandZooScore(): Int {
+<span class="nc" id="L196">        val currentGame=rootService.gameMaster.currentGame</span>
+<span class="nc bnc" id="L197" title="All 4 branches missed.">        if (currentGame.currentPlayer.balance&lt;3 || currentGame.currentPlayer.zoo.expandingValue()==0) return 0</span>
+<span class="nc" id="L198">        val distinctAnimals =currentGame.currentPlayer.zoo.barn.animals</span>
+<span class="nc" id="L199">        var maxCount=0</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        for (animal in distinctAnimals){</span>
+<span class="nc" id="L201">           var count =0</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            for(tile in distinctAnimals) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (animal.animalType==tile.animalType)count++</span>
+            }
+<span class="nc" id="L205">            maxCount=max(maxCount,count)</span>
+        }
+<span class="nc" id="L207">        return (maxCount * 2) + if (currentGame.currentPlayer.zoo.enclosures</span>
+<span class="nc bnc" id="L208" title="All 6 branches missed.">                .none { it.shops.size != 0 }</span>
+<span class="nc" id="L209">        ) 0</span>
+<span class="nc" id="L210">        else 2</span>
+    }
+
+    private fun move1TokenScore(): Int {
+<span class="nc" id="L214">        val currentGame =rootService.gameMaster.currentGame</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if (currentGame.currentPlayer.balance&lt;1) return 0</span>
+<span class="nc" id="L216">        var bonus=0</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        for (token in currentGame.currentPlayer.zoo.barn.animals){</span>
+<span class="nc" id="L218">            val enclosuresHasAnimal = currentGame.currentPlayer.zoo.enclosures.filter {</span>
+<span class="nc bnc" id="L219" title="All 8 branches missed.">                !it.isBarn &amp;&amp; it.animals.first().animalType==token.animalType &amp;&amp;(it.animalCapacity&gt;it.animals.size) }</span>
+<span class="nc bnc" id="L220" title="All 4 branches missed.">            if (enclosuresHasAnimal.isNotEmpty()){</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                for(e in enclosuresHasAnimal) {</span>
+<span class="nc" id="L222">                    val size = e.animals.size</span>
+<span class="nc bnc" id="L223" title="All 4 branches missed.">                    if (size + 1 == e.animalCapacity &amp;&amp; e.pointsFull &gt; bonus ) {</span>
+<span class="nc" id="L224">                        bonus = e.pointsFull</span>
+<span class="nc" id="L225">                        move1Token.moveLocation = e</span>
+<span class="nc" id="L226">                        move1Token.choseCard = token</span>
+                    }
+<span class="nc bnc" id="L228" title="All 4 branches missed.">                    else if (size + 1 &gt;= e.pointsNearlyFull &amp;&amp; e.pointsNearlyFull &gt; bonus){</span>
+<span class="nc" id="L229">                        bonus = e.pointsNearlyFull</span>
+<span class="nc" id="L230">                        move1Token.moveLocation = e</span>
+<span class="nc" id="L231">                        move1Token.choseCard = token</span>
+                    }
+                    else {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                        if(2 &gt; bonus){</span>
+<span class="nc" id="L235">                            bonus =2</span>
+<span class="nc" id="L236">                            move1Token.moveLocation = e</span>
+<span class="nc" id="L237">                            move1Token.choseCard = token</span>
+                        }
+                    }
+                }
+            }else{
+<span class="nc bnc" id="L242" title="All 4 branches missed.">                if(hasEmptySpace(currentGame.currentPlayer.zoo.enclosures) &amp;&amp; 3 &gt; bonus){</span>
+<span class="nc" id="L243">                    bonus =3</span>
+<span class="nc" id="L244">                    move1Token.moveLocation = currentGame.currentPlayer.zoo.enclosures</span>
+<span class="nc bnc" id="L245" title="All 6 branches missed.">                        .first { !it.isBarn &amp;&amp; it.animals.isEmpty() }</span>
+<span class="nc" id="L246">                    move1Token.choseCard = token</span>
+                }
+            }
+        }
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        for(token in currentGame.currentPlayer.zoo.barn.shops){</span>
+<span class="nc" id="L251">            val enclosures = currentGame.currentPlayer.zoo.enclosures.filter{</span>
+<span class="nc bnc" id="L252" title="All 6 branches missed.">                !it.isBarn &amp;&amp; it.shops.size&lt;it.shopCapacity}</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            for(e in enclosures){</span>
+<span class="nc" id="L254">                val size=e.shops.size</span>
+<span class="nc bnc" id="L255" title="All 6 branches missed.">                if(size==0 &amp;&amp; e.animals.size!=0 &amp;&amp; 2+e.animals.size&gt;bonus) {</span>
+<span class="nc" id="L256">                    bonus=2+e.animals.size</span>
+<span class="nc" id="L257">                    move1Token.moveLocation = e</span>
+<span class="nc" id="L258">                    move1Token.choseCard = token</span>
+                }
+                else {
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                    if(2 &gt; bonus){</span>
+<span class="nc" id="L262">                        bonus = 2</span>
+<span class="nc" id="L263">                        move1Token.moveLocation = e</span>
+<span class="nc" id="L264">                        move1Token.choseCard = token</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L269">        return bonus</span>
+    }
+
+    private fun phaseOne(){
+<span class="nc" id="L273">        val currentGame =rootService.gameMaster.currentGame</span>
+<span class="nc" id="L274">        val depth=rootService.gameMaster.currentGame.players.size</span>
+<span class="nc" id="L275">        val turn =maxiMax(rootService.gameMaster.currentGame,initializeDrawScore(),depth)</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        if(turn.second==null){</span>
+<span class="nc" id="L277">            rootService.playerActionService.turn(Turn.Draw(tileOnTruck!!),currentGame)</span>
+        }else{
+<span class="nc" id="L279">            rootService.playerActionService.turn(Turn.TakeTruck(turn.second!!,placeTiles(turn.second!!)),currentGame)</span>
+        }
+<span class="nc" id="L281">    }</span>
+
+    private fun placeTiles(second: Truck): Map&lt;Card, Enclosure?&gt; {
+<span class="nc" id="L284">        var position = 0</span>
+<span class="nc" id="L285">        val enclosuresMap =</span>
+<span class="nc" id="L286">            rootService.gameMaster.currentGame.currentPlayer.zoo.enclosures.toMutableList().map { it to position++ }</span>
+<span class="nc" id="L287">        return second.cards.associateWith {</span>
+<span class="nc" id="L288">            assignAnEnclosure(</span>
+<span class="nc" id="L289">                it,</span>
+<span class="nc" id="L290">                enclosuresMap,</span>
+<span class="nc" id="L291">                rootService.gameMaster.currentGame.currentPlayer.zoo</span>
+            )
+        }
+    }
+
+    private fun assignAnEnclosure(card: Card, enclosures: List&lt;Pair&lt;Enclosure, Int&gt;&gt;, zoo: Zoo): Enclosure? {
+<span class="nc" id="L297">        when (card) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">            is Card.Animal -&gt; {</span>
+<span class="nc" id="L299">                enclosures.sortedByDescending { it.first.animals.size }</span>
+<span class="nc bnc" id="L300" title="All 6 branches missed.">                for (enclosure in enclosures.filter { it.first.animals.isEmpty() ||</span>
+<span class="nc bnc" id="L301" title="All 4 branches missed.">                        (it.first.animals.size&lt;it.first.animalCapacity &amp;&amp; it.first.animals.first().animalType==card.animalType )}){</span>
+<span class="nc" id="L302">                    enclosure.first.animals.add(card)</span>
+<span class="nc" id="L303">                    return zoo.enclosures[enclosure.second]</span>
+                }
+<span class="nc" id="L305">                return null</span>
+            }
+<span class="nc bnc" id="L307" title="All 2 branches missed.">            is Card.Shop -&gt; {</span>
+<span class="nc" id="L308">                enclosures.sortedByDescending { it.first.animals.size }</span>
+<span class="nc bnc" id="L309" title="All 6 branches missed.">                for (enclosure in enclosures.filter { it.first.shops.size&lt;it.first.shopCapacity }){</span>
+<span class="nc" id="L310">                    enclosure.first.shops.add(card)</span>
+<span class="nc" id="L311">                    return zoo.enclosures[enclosure.second]</span>
+                }
+<span class="nc" id="L313">                return null</span>
+            }
+<span class="nc" id="L315">            else -&gt; return null</span>
+        }
+    }
+
+    private fun miniMax(game: ZoolorettoGame?, drawScore:Int, depth:Int):Pair&lt;Int, Truck?&gt; {
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        checkNotNull(game)</span>
+<span class="nc" id="L321">        var bestPair :Pair&lt;Int,Truck?&gt; = Pair(Int.MIN_VALUE,null)</span>
+<span class="nc" id="L322">        val takeOneTruckScore = bestTruckScore(game)</span>
+        //depth
+<span class="nc bnc" id="L324" title="All 4 branches missed.">        if(game.currentPlayer.selectedTruck!=null || depth==0){</span>
+<span class="nc" id="L325">            bestPair= Pair(max(drawScore,takeOneTruckScore.first),null)</span>
+        }else {
+<span class="nc bnc" id="L327" title="All 2 branches missed.">            for(tile in game.deck) { //TODO adjust here for last 15 tiles and logic for drawable if needed</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">                for (truck in game.trucks) {</span>
+<span class="nc" id="L329">                    val drawGameState = GameMaster.deepCopy&lt;ZoolorettoGame&gt;(game)</span>
+<span class="nc" id="L330">                    val truckGameState= GameMaster.deepCopy&lt;ZoolorettoGame&gt;(game)</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">                    checkNotNull(drawGameState)</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">                    checkNotNull(truckGameState)</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">                    if(truck.capacity&gt;truck.cards.size) {</span>
+<span class="nc" id="L334">                        drawNPlace(drawGameState, tile, truck)</span>
+<span class="nc" id="L335">                        takeTruck(takeOneTruckScore.second, truckGameState)</span>
+<span class="nc bnc" id="L336" title="All 2 branches missed.">                        bestPair = if (game.currentPlayer == rootService.gameMaster.currentGame.currentPlayer) {</span>
+<span class="nc" id="L337">                            max(miniMax(drawGameState, drawScore - 2,depth-1), takeOneTruckScore)</span>
+                        } else {
+<span class="nc" id="L339">                            min(miniMax(drawGameState, drawScore - 2,depth-1), takeOneTruckScore)</span>
+                        }
+                    }
+                }
+            }
+        }
+<span class="nc" id="L345">        return bestPair</span>
+    }
+
+    private fun min(firstPair: Pair&lt;Int, Truck?&gt;, secondPair: Pair&lt;Int, Truck?&gt;): Pair&lt;Int, Truck?&gt; {
+<span class="nc bnc" id="L349" title="All 2 branches missed.">        return if(firstPair.first &lt;= secondPair.first) firstPair</span>
+<span class="nc" id="L350">        else secondPair</span>
+    }
+
+    private fun maxiMax(game: ZoolorettoGame?, drawScore:Int, depth:Int):Pair&lt;Int, Truck?&gt; {
+<span class="nc bnc" id="L354" title="All 2 branches missed.">        checkNotNull(game)</span>
+<span class="nc" id="L355">        var bestPair :Pair&lt;Int,Truck?&gt; = Pair(Int.MIN_VALUE,null)</span>
+<span class="nc" id="L356">        val takeOneTruckScore = bestTruckScore(game)</span>
+        //depth
+<span class="nc bnc" id="L358" title="All 4 branches missed.">        if(game.currentPlayer.selectedTruck!=null || depth==0){</span>
+<span class="nc" id="L359">            bestPair= Pair(max(drawScore,takeOneTruckScore.first),null)</span>
+        }else {
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            for(tile in game.deck) { //TODO adjust here for last 15 tiles and logic for drawable if needed</span>
+<span class="nc bnc" id="L362" title="All 2 branches missed.">                for (truck in game.trucks) {</span>
+<span class="nc" id="L363">                    val drawGameState = GameMaster.deepCopy&lt;ZoolorettoGame&gt;(game)</span>
+<span class="nc" id="L364">                    val truckGameState= GameMaster.deepCopy&lt;ZoolorettoGame&gt;(game)</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">                    checkNotNull(drawGameState)</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">                    checkNotNull(truckGameState)</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                    if(truck.capacity&gt;truck.cards.size) {</span>
+<span class="nc" id="L368">                        drawNPlace(drawGameState, tile, truck)</span>
+<span class="nc" id="L369">                        takeTruck(takeOneTruckScore.second, truckGameState)</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">                        bestPair = if (game.currentPlayer == rootService.gameMaster.currentGame.currentPlayer) {</span>
+<span class="nc" id="L371">                            max(maxiMax(drawGameState, drawScore - 2,depth-1), takeOneTruckScore)</span>
+                        } else {
+<span class="nc bnc" id="L373" title="All 2 branches missed.">                            if (drawScore &gt;= takeOneTruckScore.first) {</span>
+<span class="nc" id="L374">                                maxiMax(drawGameState, drawScore -2 ,depth-1)</span>
+                            } else {
+<span class="nc" id="L376">                                maxiMax(truckGameState, drawScore,depth-1)</span>
+                            }
+                        }
+                    }
+                }
+            }
+        }
+<span class="nc" id="L383">        return bestPair</span>
+    }
+
+
+    private fun max(firstPair: Pair&lt;Int, Truck?&gt;, secondPair: Pair&lt;Int, Truck?&gt;): Pair&lt;Int, Truck?&gt; {
+<span class="nc bnc" id="L388" title="All 2 branches missed.">        return if(firstPair.first&gt;=secondPair.first) firstPair</span>
+<span class="nc" id="L389">        else secondPair</span>
+    }
+
+
+    private fun takeTruck(second: Truck?, gameState: ZoolorettoGame) {
+<span class="nc" id="L394">        gameState.currentPlayer.selectedTruck = second</span>
+<span class="nc" id="L395">        gameState.trucks.remove(second)</span>
+<span class="nc" id="L396">        gameState.currentPlayer = nextPlayer(gameState.currentPlayer)</span>
+<span class="nc" id="L397">    }</span>
+
+    private fun drawNPlace(gameState: ZoolorettoGame, tile: Card, truck: Truck) {
+<span class="nc" id="L400">        truck.cards.add(tile)</span>
+<span class="nc" id="L401">        gameState.deck.remove(tile)</span>
+<span class="nc" id="L402">        gameState.currentPlayer = nextPlayer(gameState.currentPlayer)</span>
+<span class="nc" id="L403">    }</span>
+
+    private fun nextPlayer(player: Player): Player {
+<span class="nc" id="L406">        val playerNumber=rootService.gameMaster.currentGame.players.size</span>
+<span class="nc" id="L407">        val playerIndex = rootService.gameMaster.currentGame.players.indexOf(player)</span>
+<span class="nc" id="L408">        return rootService.gameMaster.currentGame.players[(playerIndex+1)%playerNumber]</span>
+        }
+
+    private fun allHasTruck(game: ZoolorettoGame): Boolean {
+<span class="nc bnc" id="L412" title="All 2 branches missed.">        for(player in game.players){</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">            if(player.selectedTruck==null)</span>
+<span class="nc" id="L414">                return false</span>
+        }
+<span class="nc" id="L416">        return true</span>
+    }
+
+    private fun bestTruckScore(game: ZoolorettoGame): Pair&lt;Int,Truck?&gt; {
+<span class="nc" id="L420">        var bestTruck:Pair&lt;Int,Truck?&gt; = Pair(-6,null)</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">        for(truck in game.trucks){</span>
+<span class="nc" id="L422">            var score =-truck.capacity*2</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">            for(tile in truck.cards){</span>
+<span class="nc" id="L424">                var bonus=0</span>
+<span class="nc" id="L425">                when (tile) {</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">                    is Card.Animal -&gt; {</span>
+<span class="nc" id="L427">                        val enclosures = hasAnimal(tile, game.currentPlayer.zoo.enclosures)</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">                        enclosures.removeIf { it.first.animalCapacity == it.first.animals.size }</span>
+<span class="nc bnc" id="L429" title="All 4 branches missed.">                        if (enclosures.isNotEmpty()) {</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">                            for (enclosure in enclosures) {</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">                                bonus = if (enclosure.first.animals.size + 1 == enclosure.first.pointsNearlyFull) {</span>
+<span class="nc" id="L432">                                    enclosure.first.pointsNearlyFull</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">                                } else if (enclosure.first.animals.size + 1 == enclosure.first.pointsFull) {</span>
+<span class="nc" id="L434">                                    enclosure.first.pointsFull</span>
+                                } else {
+<span class="nc bnc" id="L436" title="All 2 branches missed.">                                    if(enclosure.first.shops.size!=0){</span>
+<span class="nc" id="L437">                                        enclosure.first.animals.size+1</span>
+                                    }else{
+<span class="nc" id="L439">                                        1</span>
+                                    }
+                                }
+                            }
+                        } else {
+<span class="nc bnc" id="L444" title="All 2 branches missed.">                            bonus = if (hasEmptySpace(game.currentPlayer.zoo.enclosures)) {</span>
+<span class="nc" id="L445">                                3</span>
+<span class="nc bnc" id="L446" title="All 2 branches missed.">                            } else if (tradableAnimal(tile,game)) {</span>
+<span class="nc" id="L447">                                3</span>
+                            } else {
+<span class="nc" id="L449">                                2</span>
+                            }
+                        }
+                    }
+<span class="nc bnc" id="L453" title="All 2 branches missed.">                    is Card.Shop -&gt; {</span>
+<span class="nc bnc" id="L454" title="All 2 branches missed.">                        bonus = if(hasEmptySpaceTwo(game.currentPlayer.zoo.enclosures)){</span>
+<span class="nc bnc" id="L455" title="All 2 branches missed.">                            if (!hasShop(tile,game.currentPlayer.zoo.enclosures)){</span>
+<span class="nc" id="L456">                                4</span>
+<span class="nc" id="L457">                            } else 3</span>
+                        }else{
+<span class="nc bnc" id="L459" title="All 2 branches missed.">                            if(tradeableShop(tile,game)) 4</span>
+<span class="nc" id="L460">                            else 0</span>
+                        }
+                    }
+<span class="nc" id="L463">                    else -&gt; bonus=4</span>
+                }
+<span class="nc" id="L465">                score +=bonus</span>
+            }
+<span class="nc bnc" id="L467" title="All 2 branches missed.">            if(score &gt; bestTruck.first) bestTruck=Pair(score,truck)</span>
+        }
+<span class="nc" id="L469">        return bestTruck</span>
+    }
+
+    private fun tradeableShop(tile: Card, game: ZoolorettoGame): Boolean {
+<span class="nc bnc" id="L473" title="All 2 branches missed.">        for(player in game.players){</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">            if (player!=game.currentPlayer){</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">                for(enclosure in player.zoo.enclosures){</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">                    if(!enclosure.isBarn){</span>
+<span class="nc" id="L477">                        var hasEmptySlot=false</span>
+<span class="nc" id="L478">                        var newShopType =true</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">                        if(enclosure.shopCapacity&gt;enclosure.shops.size) hasEmptySlot=true</span>
+<span class="nc bnc" id="L480" title="All 6 branches missed.">                        if (enclosure.shops.isNotEmpty() &amp;&amp; enclosure.shops.contains(tile)) newShopType=false</span>
+<span class="nc bnc" id="L481" title="All 4 branches missed.">                        if(hasEmptySlot&amp;&amp;newShopType) return true</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L486">        return false</span>
+    }
+
+    private fun hasShop(tile: Card.Shop, enclosures: MutableList&lt;Enclosure&gt;):Boolean {
+<span class="nc bnc" id="L490" title="All 2 branches missed.">        for(enclosure in enclosures) {</span>
+<span class="nc bnc" id="L491" title="All 2 branches missed.">            if (!enclosure.isBarn) {</span>
+<span class="nc bnc" id="L492" title="All 2 branches missed.">                for (shop in enclosure.shops) {</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">                    if (shop.shopType == tile.shopType) return true</span>
+                }
+            }
+        }
+<span class="nc" id="L497">        return false</span>
+    }
+
+    private fun hasEmptySpaceTwo(enclosures: MutableList&lt;Enclosure&gt;): Boolean {
+<span class="nc bnc" id="L501" title="All 2 branches missed.">        for(enclosure in enclosures){</span>
+<span class="nc bnc" id="L502" title="All 4 branches missed.">            if (!enclosure.isBarn &amp;&amp; enclosure.shops.isEmpty()) return true</span>
+        }
+<span class="nc" id="L504">        return false</span>
+    }
+
+    private fun tradableAnimal(tile: Card.Animal, game: ZoolorettoGame): Boolean {
+<span class="nc bnc" id="L508" title="All 2 branches missed.">        for(player in game.players){</span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">            if (player!=game.currentPlayer){</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">                for(enclosure in player.zoo.enclosures){</span>
+<span class="nc bnc" id="L511" title="All 6 branches missed.">                    if(!enclosure.isBarn &amp;&amp; enclosure.animals.isNotEmpty()</span>
+<span class="nc bnc" id="L512" title="All 2 branches missed.">                        &amp;&amp; enclosure.animals.first().animalType==tile.animalType</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">                        &amp;&amp; enclosure.animals.size+1&lt;=enclosure.animalCapacity)</span>
+<span class="nc" id="L514">                        return true</span>
+                }
+            }
+        }
+<span class="nc" id="L518">        return false</span>
+    }
+
+    private fun hasEmptySpace(enclosures: MutableList&lt;Enclosure&gt;): Boolean {
+<span class="nc bnc" id="L522" title="All 2 branches missed.">        for(enclosure in enclosures){</span>
+<span class="nc bnc" id="L523" title="All 4 branches missed.">            if (!enclosure.isBarn &amp;&amp; enclosure.animals.isEmpty()) return true</span>
+        }
+<span class="nc" id="L525">        return false</span>
+    }
+
+    private fun hasAnimal(tile: Card.Animal, enclosures: MutableList&lt;Enclosure&gt;): MutableList&lt;Pair&lt;Enclosure,Int&gt;&gt; {
+<span class="nc" id="L529">        val list= mutableListOf&lt;Pair&lt;Enclosure,Int&gt;&gt;()</span>
+<span class="nc bnc" id="L530" title="All 2 branches missed.">        for(enclosure in enclosures) {</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">            if (!enclosure.isBarn) {</span>
+<span class="nc bnc" id="L532" title="All 6 branches missed.">                val count = enclosure.animals.count { it.animalType == tile.animalType }</span>
+<span class="nc bnc" id="L533" title="All 2 branches missed.">                if (count != 0) list.add(Pair(enclosure, count))</span>
+            }
+        }
+<span class="nc" id="L536">        return list</span>
+    }
+
+    private fun initializeDrawScore(): Int {
+<span class="nc" id="L540">        var score=0</span>
+<span class="nc bnc" id="L541" title="All 2 branches missed.">        for(truck in rootService.gameMaster.currentGame.trucks){</span>
+<span class="nc" id="L542">            score+=truck.capacity*2</span>
+        }
+<span class="nc" id="L544">        return score</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

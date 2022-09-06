@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlayerActionService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">service</a> &gt; <span class="el_source">PlayerActionService.kt</span></div><h1>PlayerActionService.kt</h1><pre class="source lang-java linenums">package service
+
+import entity.*
+
+/**
+ * This class contains the deep turn mechanics
+ */
+<span class="nc" id="L8">class PlayerActionService : AbstractRefreshingService() {</span>
+<span class="nc bnc" id="L9" title="All 2 branches missed.">    lateinit var game : ZoolorettoGame</span>
+
+    /**
+     * Executes a specific turn.
+     *
+     * @param t the turn to execute
+     * @param currentGame the gameState this turn should be executed on
+     */
+    fun turn(t: Turn, currentGame: ZoolorettoGame) {
+<span class="nc" id="L18">        game = currentGame</span>
+<span class="nc" id="L19">        when (t) {</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">            is Turn.Draw -&gt; t.truck.cards[t.index] = game.deck.removeFirst()</span>
+<span class="nc bnc" id="L21" title="All 2 branches missed.">            is Turn.MoneyAction -&gt; moneyAction(t.m)</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">            is Turn.TakeTruck -&gt; {</span>
+<span class="nc" id="L23">                game.currentPlayer.selectedTruck = t.truck</span>
+<span class="nc" id="L24">                game.trucks.remove(t.truck)</span>
+<span class="nc" id="L25">                t.truck.cards = mutableListOf()</span>
+<span class="nc bnc" id="L26" title="All 4 branches missed.">                for (entry in t.map.filterNot { it.key is Card.Coin }) {</span>
+<span class="nc" id="L27">                    addCard(entry.value!!, entry.key, t.indexMap[entry.key]!!)</span>
+                }
+<span class="nc bnc" id="L29" title="All 2 branches missed.">                val coins = t.map.filter { it.key is Card.Coin }.size</span>
+<span class="nc" id="L30">                game.currentPlayer.balance += coins</span>
+<span class="nc" id="L31">                game.bankCoins -= coins</span>
+            }
+        }
+<span class="nc" id="L34">    }</span>
+
+    /**
+     * The cost of a MoneyAction
+     *
+     * @param m the MoneyAction to evaluate
+     */
+<span class="nc" id="L41">    fun moneyActionCost(m: MoneyAction) = when(m){</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        is MoneyAction.Move1Token -&gt; 1</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        is MoneyAction.Swap2Types -&gt; 1</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        is MoneyAction.Purchase1Token -&gt; 2</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        is MoneyAction.Discard1Token -&gt; 2</span>
+<span class="nc" id="L46">        is MoneyAction.ExpandZoo -&gt; 3</span>
+<span class="nc" id="L47">    }</span>
+
+    private fun moneyAction(m: MoneyAction) {
+<span class="nc" id="L50">        game.currentPlayer.balance -= moneyActionCost(m)</span>
+<span class="nc" id="L51">        game.bankCoins += moneyActionCost(m)</span>
+
+<span class="nc" id="L53">        when (m) {</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">            is MoneyAction.Move1Token -&gt; {</span>
+<span class="nc" id="L55">                addCard(m.moveLocation, m.chosenCard,m.index)</span>
+<span class="nc" id="L56">                removeCard(game.currentPlayer.zoo.barn, m.chosenCard)</span>
+            }
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            is MoneyAction.Swap2Types -&gt; {</span>
+<span class="nc" id="L59">                val encs = listOf(m.enc1,m.enc2)</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">                if(encs.any{it.isBarn}){</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">                    val barn = encs.filter{it.isBarn}[0]</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                    val notBarn = encs.filterNot{it.isBarn}[0]</span>
+<span class="nc" id="L63">                    barn.animals.filterNotNull().map { barn.animals.indexOf(it) }</span>
+<span class="nc" id="L64">                        .take(notBarn.animals.filterNotNull().size).zip(notBarn.animals)</span>
+<span class="nc" id="L65">                        .forEach { game.currentPlayer.zoo.barn.animals[it.first] = it.second }</span>
+<span class="nc bnc" id="L66" title="All 4 branches missed.">                    notBarn.addAll(game.currentPlayer.zoo.barn.animals.filterNotNull().filter{it.animalType==m.animalType})</span>
+                }else{
+<span class="nc" id="L68">                    val temp = m.enc1.animals</span>
+<span class="nc" id="L69">                    m.enc1.animals = m.enc2.animals.filterNotNull().toMutableList()</span>
+<span class="nc" id="L70">                    m.enc2.animals = temp.filterNotNull().toMutableList()</span>
+                }
+            }
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            is MoneyAction.Purchase1Token -&gt; {</span>
+<span class="nc" id="L74">                game.bankCoins -= 1 // Because we added one too much at the start of this function</span>
+<span class="nc" id="L75">                m.sPlayer.balance += 1</span>
+<span class="nc" id="L76">                addCard(m.moveLocation, m.chosenAnimal, m.index)</span>
+<span class="nc" id="L77">                removeCard(m.sPlayer.zoo.barn, m.chosenAnimal)</span>
+            }
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            is MoneyAction.Discard1Token -&gt; removeCard(game.currentPlayer.zoo.barn, m.chosenAnimal)</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            is MoneyAction.ExpandZoo -&gt; game.currentPlayer.zoo.expand()</span>
+        }
+<span class="nc" id="L82">    }</span>
+
+    private fun addCard(enclosure: Enclosure, card: Card, index: Int) {
+<span class="nc" id="L85">        when (card) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            is Card.Animal -&gt; {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (card.isFertile) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                    val otherSex = if (card.maturity == Maturity.Male) Maturity.Female else Maturity.Male</span>
+<span class="nc" id="L89">                    val possiblePartners =</span>
+<span class="nc" id="L90">                        enclosure.animals.filterNotNull()</span>
+<span class="nc bnc" id="L91" title="All 8 branches missed.">                            .filter { it.isFertile &amp;&amp; it.animalType == card.animalType &amp;&amp; it.maturity == otherSex }</span>
+<span class="nc bnc" id="L92" title="All 4 branches missed.">                    if (possiblePartners.isNotEmpty()) {</span>
+<span class="nc" id="L93">                        val partner = possiblePartners[0]</span>
+<span class="nc" id="L94">                        card.isFertile = false</span>
+<span class="nc" id="L95">                        partner.isFertile = false</span>
+<span class="nc" id="L96">                        val child = Card.Animal(partner.animalType, Maturity.OffSpring, false)</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                        if (enclosure.animalCapacity - enclosure.animals.size &gt; 0) {</span>
+<span class="nc" id="L98">                            enclosure.animals[index] = child</span>
+                        } else {
+<span class="nc" id="L100">                            game.currentPlayer.zoo.barn.add(child)</span>
+                        }
+<span class="nc bnc" id="L102" title="All 4 branches missed.">                        if (enclosure.animals.size == enclosure.animalCapacity &amp;&amp; game.bankCoins &gt; 0) {</span>
+<span class="nc" id="L103">                            game.currentPlayer.balance += enclosure.coinsFull</span>
+<span class="nc" id="L104">                            game.bankCoins -= enclosure.coinsFull</span>
+                        }
+                    }
+                }
+
+            }
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            is Card.Shop -&gt; enclosure.add(card)</span>
+            else -&gt; {}
+        }
+<span class="nc" id="L113">    }</span>
+
+    private fun removeCard(enclosure: Enclosure, card: Card) {
+<span class="nc" id="L116">        when (card) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            is Card.Animal -&gt; enclosure.animals.remove(card)</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            is Card.Shop -&gt; enclosure.shops.remove(card)</span>
+            else -&gt; {}
+        }
+<span class="nc" id="L121">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

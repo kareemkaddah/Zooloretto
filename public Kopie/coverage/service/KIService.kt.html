@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KIService.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">service</a> &gt; <span class="el_source">KIService.kt</span></div><h1>KIService.kt</h1><pre class="source lang-java linenums">package service
+
+import entity.GameMaster
+import entity.ZoolorettoGame
+import kotlin.random.Random
+
+/**
+ * This class handles KI interaction
+ */
+<span class="pc" id="L10">class KIService(var rootService: RootService?) : AbstractRefreshingService() {</span>
+<span class="nc" id="L11">    fun fillOutcomeList(currentState: ZoolorettoGame, depth: Int = 2, outcomesList: MutableList&lt;Pair&lt;ZoolorettoGame,Int&gt;&gt; = mutableListOf(), kBest: Int = 5) {</span>
+<span class="nc bnc" id="L12" title="All 2 branches missed.">        if (depth==0){</span>
+<span class="nc" id="L13">            outcomesList.add(Pair(currentState,score(currentState)))</span>
+<span class="nc" id="L14">            return</span>
+        }
+        // SCORE For the AI calculation
+        //List of possible turns length x
+<span class="nc" id="L18">        var possibleTurns = listOf&lt;Turn&gt;()</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        var gameStates = List(3){GameMaster.deepCopy&lt;ZoolorettoGame&gt;(currentState)}</span>
+
+        //Copy the State x times for every Turn and apply each one and save (state, SCORE(state))
+        //for each calculate Score
+        // (gamestate, turn) -&gt; ( gamestate+turn, heuristicScore)
+<span class="nc" id="L24">        val appliedScoresAndStates = (gameStates zip possibleTurns).map { (a,b)-&gt;</span>
+<span class="nc bnc" id="L25" title="All 6 branches missed.">                rootService?.gameService?.turn(b,a); Pair(requireNotNull(a),score(requireNotNull(a)))</span>
+        }
+
+<span class="nc" id="L28">        val firstKBestElments=appliedScoresAndStates.sortedBy { (_,b)-&gt;b }.take(kBest)</span>
+<span class="nc" id="L29">        firstKBestElments.parallelStream().map { (a,_)-&gt; fillOutcomeList(a,depth-1,outcomesList)}</span>
+        //TODO
+<span class="nc" id="L31">    }</span>
+
+    /**
+     * Score
+     */
+    fun score(game: ZoolorettoGame): Int{
+<span class="nc" id="L37">        return Random.nextInt(0, 10)</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

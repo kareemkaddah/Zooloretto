@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CardImageLoader.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">service</a> &gt; <span class="el_source">CardImageLoader.kt</span></div><h1>CardImageLoader.kt</h1><pre class="source lang-java linenums">package service
+
+import entity.Maturity
+import entity.AnimalType
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
+
+private const val CARDS_FILE = &quot;/cards.png&quot;
+private const val IMG_HEIGHT = 90
+private const val IMG_WIDTH = 90
+
+/**
+ * Provides access to the src/main/resources/card_deck.png file that contains all card images
+ * in a raster. The returned [BufferedImage] objects of [frontImageFor], [blankImage],
+ * and [backImage] are 130x200 pixels.
+ */
+<span class="nc" id="L17">class CardImageLoader {</span>
+
+    /**
+     * The full raster image containing the suits as rows (plus one special row for blank/back)
+     * and values as columns (starting with the ace). As the ordering does not correctly reflect
+     * the order in which the suits are declared in [AnimalType], mappings via [row] and [column]
+     * are required.
+     */
+<span class="nc" id="L25">    private val image : BufferedImage = ImageIO.read(CardImageLoader::class.java.getResource(CARDS_FILE))</span>
+
+    /**
+     * Provides the card image for the given [AnimalType] and [Maturity]
+     */
+    fun frontImageFor(animalType: AnimalType, maturity: Maturity) =
+<span class="nc" id="L31">        getImageByCoordinates(maturity.column, animalType.row)</span>
+
+    /**
+     * Provides vending Stall1 card
+     */
+<span class="nc" id="L36">    val vendingStall1 : BufferedImage get() = getImageByCoordinates(0, 8)</span>
+
+    /**
+     * Provides vending Stall2 card
+     */
+<span class="nc" id="L41">    val vendingStall2 : BufferedImage get() = getImageByCoordinates(1, 8)</span>
+
+    /**
+     * Provides vending Stall3 card
+     */
+<span class="nc" id="L46">    val vendingStall3 : BufferedImage get() = getImageByCoordinates(2, 8)</span>
+
+    /**
+     * Provides vending Stall4 card
+     */
+<span class="nc" id="L51">    val vendingStall4 : BufferedImage get() = getImageByCoordinates(3, 8)</span>
+
+    /**
+     * Provides coin card
+     */
+<span class="nc" id="L56">    val coin : BufferedImage get() = getImageByCoordinates(0, 9)</span>
+
+    /**
+     * Provides the back side image of the card deck
+     */
+<span class="nc" id="L61">    val backImage: BufferedImage get() = getImageByCoordinates(1, 9)</span>
+
+    /**
+     * retrieves from the full raster image [image] the corresponding sub-image
+     * for the given column [x] and row [y]
+     *
+     * @param x column in the raster image, starting at 0
+     * @param y row in the raster image, starting at 0
+     *
+     */
+    private fun getImageByCoordinates (x: Int, y: Int) : BufferedImage =
+<span class="nc" id="L72">        image.getSubimage(</span>
+<span class="nc" id="L73">            x * IMG_WIDTH,</span>
+<span class="nc" id="L74">            y * IMG_HEIGHT,</span>
+<span class="nc" id="L75">            IMG_WIDTH,</span>
+<span class="nc" id="L76">            IMG_HEIGHT</span>
+<span class="nc" id="L77">        )</span>
+
+}
+
+/**
+ * As the [CARDS_FILE] does not have the same ordering of suits
+ * as they are in [AnimalType], this extension property provides
+ * a corresponding mapping to be used when addressing the row.
+ *
+ */
+<span class="nc bnc" id="L87" title="All 8 branches missed.">private val AnimalType.row get() = when (this) {</span>
+<span class="nc" id="L88">    AnimalType.Panda        -&gt; 0</span>
+<span class="nc" id="L89">    AnimalType.Zebra        -&gt; 1</span>
+<span class="nc" id="L90">    AnimalType.Elefant      -&gt; 2</span>
+<span class="nc" id="L91">    AnimalType.Schimpanse   -&gt; 3</span>
+<span class="nc" id="L92">    AnimalType.Flamingo     -&gt; 4</span>
+<span class="nc" id="L93">    AnimalType.Kamel        -&gt; 5</span>
+<span class="nc" id="L94">    AnimalType.Leopard      -&gt; 6</span>
+<span class="nc" id="L95">    AnimalType.Kaenguru     -&gt; 7</span>
+<span class="nc" id="L96">}</span>
+
+
+/**
+ * As the [CARDS_FILE] does not have the same ordering of values
+ * as they are in [Maturity], this extension property provides
+ * a corresponding mapping to be used when addressing the column.
+ */
+<span class="nc bnc" id="L104" title="All 4 branches missed.">private val Maturity.column get() = when (this) {</span>
+<span class="nc" id="L105">    Maturity.Neutral        -&gt; 0</span>
+<span class="nc" id="L106">    Maturity.Female         -&gt; 1</span>
+<span class="nc" id="L107">    Maturity.Male           -&gt; 2</span>
+<span class="nc" id="L108">    Maturity.OffSpring      -&gt; 3</span>
+<span class="nc" id="L109">}</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="service.KITest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-07-01T18:15:21" hostname="MacBook-Pro-von-Karim.local" time="0.064">
+  <properties/>
+  <testcase name="turnTest()" classname="service.KITest" time="0.064"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

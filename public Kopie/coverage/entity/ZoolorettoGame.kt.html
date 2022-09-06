@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ZoolorettoGame.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">entity</a> &gt; <span class="el_source">ZoolorettoGame.kt</span></div><h1>ZoolorettoGame.kt</h1><pre class="source lang-java linenums">package entity
+
+/**
+ * The Game
+ *
+ * @param players the list of all playeres
+ * @param currentPlayer the currentPlayer
+ * @param simulationSpeed the speed the KI works with
+ */
+<span class="nc" id="L10">data class ZoolorettoGame(</span>
+<span class="nc" id="L11">    val players: List&lt;Player&gt;,</span>
+<span class="nc" id="L12">    var currentPlayer: Player = players[0],</span>
+<span class="nc" id="L13">    private val simulationSpeed: Int = 1000</span>
+) : java.io.Serializable {
+
+<span class="nc" id="L16">    var bankCoins = 30 - players.size * 2</span>
+<span class="nc" id="L17">    var deck: ArrayDeque&lt;Card&gt; = ArrayDeque()</span>
+<span class="nc" id="L18">    var extraCards: ArrayDeque&lt;Card&gt; = ArrayDeque()</span>
+
+    /**
+     * The constructor, which creates a new and correct game and deck
+     */
+<span class="nc" id="L23">    init {</span>
+<span class="nc" id="L24">        var animalTypes = AnimalType.values().toMutableList()</span>
+<span class="nc" id="L25">        animalTypes.shuffle()</span>
+<span class="nc" id="L26">        animalTypes = animalTypes.take(</span>
+<span class="nc bnc" id="L27" title="All 3 branches missed.">            when (players.size) {</span>
+<span class="nc" id="L28">                3 -&gt; 6</span>
+<span class="nc" id="L29">                4 -&gt; 7</span>
+<span class="nc" id="L30">                else -&gt; 8</span>
+            }
+<span class="nc" id="L32">        ).toMutableList()</span>
+
+<span class="nc" id="L34">        val animalCards : List&lt;Card.Animal&gt;  = animalTypes.map {</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">            List(2) { Card.Animal(maturity = Maturity.Male, isFertile = true) } +</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            List(2) { Card.Animal(maturity = Maturity.Female, isFertile = true) } +</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">            List(7) { Card.Animal(maturity = Maturity.Neutral) }</span>
+<span class="nc" id="L38">        }.flatten()</span>
+
+        //val animalChilds : List&lt;Card.Animal&gt; = animalTypes.map { List(2) { Card.Animal(maturity = Maturity.OffSpring) } }.flatten()
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        val shops : List&lt;Card.Shop&gt; = List(12){Card.Shop(it%3)}</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        val coins : List&lt;Card.Coin&gt; = List(12){Card.Coin}</span>
+
+<span class="nc" id="L44">        deck = ArrayDeque(elements=(animalCards+shops+coins))</span>
+<span class="nc" id="L45">        deck.shuffle()</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        extraCards = ArrayDeque(elements=List(15){deck.removeFirst()})</span>
+<span class="nc" id="L47">    }</span>
+
+<span class="nc" id="L49">    val trucks: MutableList&lt;Truck&gt; = when (players.size) {</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        2 -&gt; {</span>
+<span class="nc" id="L51">            mutableListOf(Truck(), Truck(capacity = 2), Truck(capacity = 3))</span>
+        }
+        else -&gt; {
+<span class="nc" id="L54">            mutableListOf(Truck(), Truck(), Truck())</span>
+        }
+    }
+<span class="nc" id="L57">}</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

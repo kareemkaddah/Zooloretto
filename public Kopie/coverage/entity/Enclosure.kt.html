@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Enclosure.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">projekt2</a> &gt; <a href="index.source.html" class="el_package">entity</a> &gt; <span class="el_source">Enclosure.kt</span></div><h1>Enclosure.kt</h1><pre class="source lang-java linenums">package entity
+
+/**
+ * Represents a zoo enclosure and the barn
+ *
+ * @param animals the animals of the enclosure
+ * @param shops the shops of the enclosure
+ * @param isBarn is trur if this is the barn
+ * @param animalCapacity the maximum amount of animals that can be stored
+ * @param shopCapacity the maximum amount of shops that can be stored
+ * @param coinsFull the coins the player gets when the enclosure is full
+ * @param playerReceivedCoinsFull is true if the player received the coins
+ * @param pointsFull the points the player gets when the enclosure is full
+ * @param pointsNearlyFull the points the player gets when the enclosure is nearlyfull
+ */
+<span class="nc" id="L16">class Enclosure(</span>
+<span class="nc" id="L17">    var animals: MutableList&lt;Card.Animal?&gt; = mutableListOf(),</span>
+<span class="nc" id="L18">    var shops: MutableList&lt;Card.Shop?&gt; = mutableListOf(),</span>
+<span class="nc" id="L19">    var isBarn: Boolean = false,</span>
+<span class="nc" id="L20">    val animalCapacity: Int,</span>
+<span class="nc" id="L21">    val shopCapacity: Int,</span>
+<span class="nc" id="L22">    val coinsFull: Int,</span>
+<span class="nc" id="L23">    val pointsFull: Int,</span>
+<span class="nc" id="L24">    val pointsNearlyFull: Int</span>
+) {
+
+    /**
+     * Computes the points whis enclosure is worth
+     */
+<span class="nc" id="L30">    fun computePoints() = when (animals.size) {</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        animalCapacity - 1 -&gt; pointsNearlyFull</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        animalCapacity -&gt; pointsFull</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        else -&gt; if (shops.size &gt; 0) animals.size else 0</span>
+<span class="nc" id="L34">    }</span>
+
+    /**
+     * Adds a Card to the enclosure
+     */
+    fun add(card : Card){
+<span class="nc" id="L40">        when(card){</span>
+<span class="nc bnc" id="L41" title="All 6 branches missed.">            is Card.Animal -&gt; animals[animals.indexOf(animals.filter{it==null}[0])] = card</span>
+<span class="nc bnc" id="L42" title="All 6 branches missed.">            is Card.Shop -&gt; shops[shops.indexOf(shops.filter{it==null}[0])] = card</span>
+<span class="nc" id="L43">            else -&gt; throw IllegalStateException(&quot;Cannot add this type of card to an Enclosure&quot;)</span>
+        }
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * Adds multiple cards to animals or shops
+     */
+<span class="nc" id="L50">    fun addAll(elements: Collection&lt;Card&gt;) = elements.forEach { add(it) }</span>
+<span class="nc" id="L51">}</span>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
